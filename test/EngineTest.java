@@ -55,29 +55,26 @@ public class EngineTest {
 
     @Test
     void testCalculatePowerToWeight() {
-        // Test with normal values
+        // normal
         assertEquals(1.67, testEngine.calculatePowerToWeight(), 0.01);
 
-        // Test with zero weight (should return 0 to avoid division by zero)
+        // zero
         testEngine.setWeight(0);
         assertEquals(0, testEngine.calculatePowerToWeight());
     }
 
     @Test
     void testToString() {
-        String expected = "Engine{type='Test Engine', power=250, fuelEfficiency=10.0, weight=150.0}";
-        assertEquals(expected, testEngine.toString());
+        assertEquals("Engine{type='Test Engine', power=250, fuelEfficiency=10.0, weight=150.0}", testEngine.toString());
     }
 
     @Test
     void testPowerToWeightComparison() {
-        // Turbo engine should have better power-to-weight ratio than standard engine
         assertTrue(turboEngine.calculatePowerToWeight() > standardEngine.calculatePowerToWeight());
     }
 
     @Test
     void testFuelEfficiencyComparison() {
-        // Standard engine should be more fuel efficient than turbo engine
         assertTrue(standardEngine.getFuelEfficiency() > turboEngine.getFuelEfficiency());
     }
 }

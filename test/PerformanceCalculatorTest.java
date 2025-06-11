@@ -38,13 +38,13 @@ public class PerformanceCalculatorTest {
         testTrack.setCurrentWeather(Weather.createWetWeather());
         double wet = PerformanceCalculator.calculateFuelConsumption(testCar, testTrack);
         assertTrue(wet > 0);
-        assertTrue(wet > dry, "Wet fuel consumption should be higher than dry");
+        assertTrue(wet > dry);
 
         Weather highWind = Weather.createDryWeather();
         highWind.setWindSpeed(35);
         testTrack.setCurrentWeather(highWind);
         double wind = PerformanceCalculator.calculateFuelConsumption(testCar, testTrack);
-        assertTrue(wind > dry, "High wind fuel consumption should be higher than dry");
+        assertTrue(wind > dry);
     }
 
     @Test
@@ -60,23 +60,23 @@ public class PerformanceCalculatorTest {
 
     @Test
     void testGetBestKitForTrack() {
-        // Test hard track scenario
+        // hard
         Track hardTrack = new Track("HardTest", 4.0, 19, "Hard", "Smooth");
         AeroKit hardKit = PerformanceCalculator.getBestKitForTrack(hardTrack);
         assertNotNull(hardKit);
-        assertEquals("Extreme Aero Kit", hardKit.getName(), "Hard track should recommend Extreme Aero Kit");
+        assertEquals("Extreme Aero Kit", hardKit.getName());
 
-        // Test medium track with many corners
+        // medium
         Track mediumTrack = new Track("MediumTest", 5.0, 12, "Medium", "Smooth");
         AeroKit mediumKit = PerformanceCalculator.getBestKitForTrack(mediumTrack);
         assertNotNull(mediumKit);
-        assertEquals("Ground Effect Kit", mediumKit.getName(), "Medium track with many corners should recommend Ground Effect Kit");
+        assertEquals("Ground Effect Kit", mediumKit.getName());
 
-        // Test easy track scenario (low drag kit)
+        // easy
         Track easyTrack = new Track("EasyTest", 6.0, 8, "Easy", "Smooth");
         AeroKit easyKit = PerformanceCalculator.getBestKitForTrack(easyTrack);
         assertNotNull(easyKit);
-        assertEquals("Low Drag Kit", easyKit.getName(), "Easy track should recommend Low Drag Kit");
+        assertEquals("Low Drag Kit", easyKit.getName());
     }
 
     @Test
@@ -109,7 +109,6 @@ public class PerformanceCalculatorTest {
         Performance balancedPerf = PerformanceCalculator.createCarPerformance(balancedCar, testTrack);
 
         assertTrue(fastPerf.getTopSpeed() > balancedPerf.getTopSpeed() ||
-                        fastPerf.getAcceleration() < balancedPerf.getAcceleration(),
-                "Fast car should have higher top speed or better acceleration");
+                        fastPerf.getAcceleration() < balancedPerf.getAcceleration());
     }
 }

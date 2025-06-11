@@ -91,13 +91,11 @@ public class CarTest {
 
     @Test
     void testGetBasicInfo() {
-        String expectedInfo = "Car #1: Test Car | Weight: 1000.0kg | Configured: false";
-        assertEquals(expectedInfo, basicCar.getBasicInfo());
+        assertEquals("Car #1: Test Car | Weight: 1000.0kg | Configured: false", basicCar.getBasicInfo());
     }
 
     @Test
     void testToString() {
-        String expectedToString = "Car{id=1, name='Test Car', weight=1000.0, isConfigured=false, engine=null, frontTyres=null, rearTyres=null, aeroKit=null}";
-        assertEquals(expectedToString, basicCar.toString());
+        assertEquals("Car{id=1, name='Test Car', weight=1000.0, isConfigured=false, engine=null, frontTyres=null, rearTyres=null, aeroKit=null}", basicCar.toString());
     }
 }

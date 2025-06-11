@@ -1,4 +1,5 @@
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class WeatherTest {
@@ -40,7 +41,7 @@ public class WeatherTest {
     }
 
     @Test
-    public void testSettersAndGetters() {
+    public void testGetters() {
         Weather w = new Weather("Test", 10, 5, 2);
         w.setCondition("Storm");
         assertEquals("Storm", w.getCondition());

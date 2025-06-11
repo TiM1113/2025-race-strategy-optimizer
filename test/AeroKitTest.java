@@ -43,8 +43,7 @@ public class AeroKitTest {
     @Test
     public void testToString() {
         AeroKit kit = new AeroKit("Test Kit", 0.32, 220, 230);
-        String expected = "AeroKit{name='Test Kit', dragCoefficient=0.32, downforce=220, topSpeedImpact=230}";
-        assertEquals(expected, kit.toString());
+        assertEquals("AeroKit{name='Test Kit', dragCoefficient=0.32, downforce=220, topSpeedImpact=230}", kit.toString());
     }
 
     @Test

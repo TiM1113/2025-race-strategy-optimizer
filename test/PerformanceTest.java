@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PerformanceTest {
     
     @Test
-    public void testConstructorAndGetters() {
+    public void testGetters() {
         Performance performance = new Performance(300, 2.5, 2.0, 80.5, 8);
         
         assertEquals(300, performance.getTopSpeed());
@@ -21,16 +21,12 @@ public class PerformanceTest {
         
         performance.setTopSpeed(320);
         assertEquals(320, performance.getTopSpeed());
-        
         performance.setAcceleration(2.3);
         assertEquals(2.3, performance.getAcceleration());
-        
         performance.setFuelConsumption(1.8);
         assertEquals(1.8, performance.getFuelConsumption());
-        
         performance.setLapTime(79.5);
         assertEquals(79.5, performance.getLapTime());
-        
         performance.setCorneringAbility(9);
         assertEquals(9, performance.getCorneringAbility());
     }
@@ -38,14 +34,13 @@ public class PerformanceTest {
     @Test
     public void testToString() {
         Performance performance = new Performance(300, 2.5, 2.0, 80.5, 8);
-        String expected = "Performance{topSpeed=300 km/h, acceleration=2.5 sec (0-100), fuelConsumption=2.0 L/lap, lapTime=80.5 sec, corneringAbility=8}";
-        assertEquals(expected, performance.toString());
+        assertEquals("Performance{topSpeed=300 km/h, acceleration=2.5 sec (0-100), fuelConsumption=2.0 L/lap, lapTime=80.5 sec, corneringAbility=8}", performance.toString());
     }
     
     @Test
     public void testGetOverallRating() {
         Performance performance = new Performance(300, 2.5, 2.0, 80.5, 8);
-        // Expected calculation: (300/10) + (8*10) - (2.5*5) = 30 + 80 - 12.5 = 97.5
+        // shold be 97
         assertEquals(97, performance.getOverallRating());
     }
     
