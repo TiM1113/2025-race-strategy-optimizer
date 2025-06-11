@@ -31,13 +31,41 @@ public class RaceSimulator {
         currentLap = 0;
         isRaceFinished = false;
 
-        // Simulate each lap
+        // Tyre wear modeling
+        int totalPitStops = strategy.getNumberOfPitStops();
+        int stints = totalPitStops + 1;
+        int[] stintLengths = new int[stints];
+        int baseStint = totalLaps / stints;
+        int extra = totalLaps % stints;
+        for (int i = 0; i < stints; i++) {
+            stintLengths[i] = baseStint + (i < extra ? 1 : 0);
+        }
+        int stintIndex = 0;
+        int lapsOnTyre = 0;
+        int lapsInCurrentStint = 0;
+
+        // Parse compounds from strategy
+        java.util.List<String> compounds = strategy.getTyreCompoundsForStints(stints);
+        Tyre currentTyre = getTyreByCompound(compounds.get(0));
+
         for (int i = 0; i < totalLaps; i++) {
-            double lapTime = simulateLap(car, track, weather);
+            // Pit stop at the start of each new stint except the first
+            if (lapsInCurrentStint == 0 && i != 0) {
+                lapsOnTyre = 0;
+                stintIndex++;
+                currentTyre = getTyreByCompound(compounds.get(stintIndex));
+            }
+
+            double lapTime = simulateLapWithTyre(car, track, weather, currentTyre, lapsOnTyre, strategy);
             // Add realistic variation ±2 seconds
             lapTime += rand.nextDouble() * 4 - 2;
             totalLapTime += lapTime;
             currentLap++;
+            lapsOnTyre++;
+            lapsInCurrentStint++;
+            if (lapsInCurrentStint >= stintLengths[stintIndex]) {
+                lapsInCurrentStint = 0;
+            }
         }
 
         // Calculate pit stop time
@@ -193,5 +221,74 @@ public class RaceSimulator {
     public String toString() {
         return String.format("RaceSimulator{totalLaps=%d, currentLap=%d, finished=%s, progress=%.1f%%}",
                 totalLaps, currentLap, isRaceFinished, getRaceProgress());
+    }
+
+    // New helper for lap time with tyre wear/compound
+    private double simulateLapWithTyre(Car car, Track track, Weather weather, Tyre tyre, int lapsOnTyre, RaceStrategy strategy) {
+        Performance performance = PerformanceCalculator.createCarPerformance(car, track);
+        double lapTime = performance.getLapTime();
+
+        // Tyre compound base bonus scaled by how technical the track is (more corners -> greater benefit from softer tyres)
+        double cornerFactor = Math.max(0.6, track.getCorners() / 15.0);
+        double lengthFactor = Math.max(0.7, track.getLength() / 4.5);
+        lapTime += tyre.getBaseLapTimeBonus() * cornerFactor * cornerFactor / lengthFactor;
+        
+        // Tyre wear penalty with cliff effect
+        double wearPenalty = 0;
+        if (lapsOnTyre > tyre.getDurability()) {
+            // After durability is exceeded, apply a sharp performance cliff
+            wearPenalty = tyre.getWearRate() * (lapsOnTyre - tyre.getDurability()) * 8.0 * cornerFactor * lengthFactor;
+        } else {
+            // Normal wear before durability limit
+            wearPenalty = tyre.getWearRate() * lapsOnTyre * 3.0 * cornerFactor * lengthFactor;
+        }
+        lapTime += wearPenalty;
+
+        // Apply weather modifiers
+        if (weather.getRainIntensity() > 5) {
+            lapTime *= 1.10;  // 10% slower for heavy rain
+        }
+        if (weather.getWindSpeed() > 30) {
+            lapTime *= 1.05;  // 5% slower for high wind
+        }
+        // Apply track difficulty modifier
+        switch (track.getDifficulty()) {
+            case "Hard":
+                lapTime *= 1.05;
+                break;
+            case "Easy":
+                lapTime *= 0.98;
+                break;
+            // Medium remains unchanged
+        }
+
+        // Fuel load modifier based on strategy
+        double fuelAdj = 0.0;
+        switch (strategy.getFuelStrategy()) {
+            case "Light":
+                fuelAdj = -0.004 * cornerFactor; // further reduced bonus
+                break;
+            case "Heavy":
+                fuelAdj = 0.004 * cornerFactor; // reduced penalty
+                break;
+            // Medium remains unchanged
+        }
+        lapTime *= (1.0 + fuelAdj);
+
+        return lapTime;
+    }
+
+    // Helper to get Tyre object by compound name
+    private Tyre getTyreByCompound(String compound) {
+        switch (compound.toLowerCase()) {
+            case "soft":
+                return Tyre.createSoftTyre();
+            case "medium":
+                return Tyre.createMediumTyre();
+            case "hard":
+                return Tyre.createHardTyre();
+            default:
+                return Tyre.createMediumTyre(); // fallback
+        }
     }
 }

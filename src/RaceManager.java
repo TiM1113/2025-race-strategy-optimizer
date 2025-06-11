@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.io.InputStream;
 
 public class RaceManager {
     private static Car car;
@@ -6,7 +7,17 @@ public class RaceManager {
     private static Performance performance;
     private static RaceStrategy strategy;
 
-    private static final Scanner scanner = new Scanner(System.in);
+    /**
+     * Shared scanner instance. It is recreated automatically whenever {@code System.in}
+     * changes (which typically happens in unit tests that swap the input stream with
+     * a {@link java.io.ByteArrayInputStream}).
+     */
+    private static Scanner scanner = null;
+
+    /** Keeps track of the {@link System#in} reference that the current {@link #scanner} was
+     * created from, so we can detect when tests replace {@code System.in} and lazily
+     * rebuild the scanner. */
+    private static InputStream scannerSource = System.in;
 
     public static void main(String[] args) {
         boolean running = true;
@@ -38,7 +49,14 @@ public class RaceManager {
         System.out.print("Enter your choice: ");
     }
 
-    private static int getUserChoice(int min, int max) {
+    static int getUserChoice(int min, int max) {
+        // Lazily (re)initialise the scanner if it doesn't exist or if the underlying
+        // System.in reference has changed since the last invocation.
+        if (scanner == null || scannerSource != System.in) {
+            scanner = new Scanner(System.in);
+            scannerSource = System.in;
+        }
+
         int input;
         while (true) {
             try {

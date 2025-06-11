@@ -1,4 +1,5 @@
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
@@ -36,5 +37,19 @@ public class AeroKitFactoryTest {
         List<AeroKit> kits = AeroKitFactory.getKitsForTrackType("Technical");
         assertTrue(kits.stream().anyMatch(k -> k.getName().equals("High Downforce Kit")));
         assertTrue(kits.stream().anyMatch(k -> k.getName().equals("Ground Effect Kit")));
+    }
+
+    @Test
+    public void testGetKisForBalancedTrack() {
+        List<AeroKit> kits = AeroKitFactory.getKitsForTrackType("balanced");
+        assertTrue(kits.stream().anyMatch(k -> k.getName().equals("Adjustable Kit")));
+        assertTrue(kits.stream().anyMatch(k -> k.getName().equals("Standard Kit")));
+    }
+
+    @Test
+    public void testGetKisForNoSuchTrack() {
+        List<AeroKit> defaultKits = AeroKitFactory.getKitsForTrackType("noSuchName");
+        assertTrue(defaultKits.stream().anyMatch(k -> k.getName().equals("Adjustable Kit")));
+        assertTrue(defaultKits.stream().anyMatch(k -> k.getName().equals("Standard Kit")));
     }
 }

@@ -23,20 +23,54 @@ public class AeroKitTest {
     }
 
     @Test
-    public void testGetKitType_HighSpeed() {
+    public void testGetKitTypeHighSpeed() {
         AeroKit kit = AeroKit.createLowDragKit();
         assertEquals("High Speed", kit.getKitType());
     }
 
     @Test
-    public void testGetKitType_HighDownforce() {
+    public void testGetKitTypeHighDownforce() {
         AeroKit kit = AeroKit.createExtremeAeroKit();
         assertEquals("High Downforce", kit.getKitType());
     }
 
     @Test
-    public void testGetKitType_Balanced() {
+    public void testGetKitTypeBalanced() {
         AeroKit kit = AeroKit.createAdjustableKit();
         assertEquals("Balanced", kit.getKitType());
+    }
+
+    @Test
+    public void testToString() {
+        AeroKit kit = new AeroKit("Test Kit", 0.32, 220, 230);
+        String expected = "AeroKit{name='Test Kit', dragCoefficient=0.32, downforce=220, topSpeedImpact=230}";
+        assertEquals(expected, kit.toString());
+    }
+
+    @Test
+    public void testSetters() {
+        AeroKit kit = new AeroKit("Initial Kit", 0.30, 200, 250);
+        
+        // Test setName
+        kit.setName("Updated Kit");
+        assertEquals("Updated Kit", kit.getName());
+        
+        // Test setDragCoefficient
+        kit.setDragCoefficient(0.35);
+        assertEquals(0.35, kit.getDragCoefficient(), 0.001);
+        
+        // Test setDownforce
+        kit.setDownforce(300);
+        assertEquals(300, kit.getDownforce());
+        
+        // Test setTopSpeedImpact
+        kit.setTopSpeedImpact(220);
+        assertEquals(220, kit.getTopSpeedImpact());
+
+        // cover branch of getKitType
+        kit.setDragCoefficient(0.27);
+        kit.setDownforce(400);
+        kit.setTopSpeedImpact(260);
+        assertEquals("High Downforce", kit.getKitType());
     }
 }

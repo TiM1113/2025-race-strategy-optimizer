@@ -273,6 +273,38 @@ public class RaceSimulatorTest {
         assertTrue(variationFound, "Random variation should be present in lap times");
     }
 
-    // Helper method removed since we don't need to access private totalLaps
-    // We test total laps indirectly through getCurrentLap() after race completion
+    @Test
+    public void testStrategyOutcomesOnDifferentTrackLengths() {
+        // Setup: A car optimized for high downforce (good for cornering)
+        Car corneringCar = new Car(5, "CornerMaster", 900.0,
+                Engine.createTurboEngine(),
+                Tyre.createSoftTyre(), Tyre.createSoftTyre(),
+                AeroKit.createHighDownforceKit());
+
+        // Tracks
+        Track monaco = Track.createMonacoTrack(); // Short, many corners
+        Track monza = Track.createMonzaTrack();   // Long, fewer corners
+
+        // Strategies
+        RaceStrategy aggressive = RaceStrategy.createAggressiveStrategy(); // 3 pit stops
+        RaceStrategy conservative = RaceStrategy.createConservativeStrategy(); // 1 pit stop
+
+        // --- Monaco Simulation (Short Track) ---
+        RaceSimulator monacoSim = new RaceSimulator(25); // 25 laps for a short race
+        RaceResult aggressiveMonaco = monacoSim.simulateRace(corneringCar, monaco, aggressive, testWeather);
+        RaceResult conservativeMonaco = monacoSim.simulateRace(corneringCar, monaco, conservative, testWeather);
+
+        // On a short, twisty track, an aggressive strategy with more stops for fresh, soft tyres should be faster.
+        assertTrue(aggressiveMonaco.getTotalTime() < conservativeMonaco.getTotalTime(),
+                "Aggressive strategy should be faster on a short, technical track like Monaco.");
+
+        // --- Monza Simulation (Long Track) ---
+        RaceSimulator monzaSim = new RaceSimulator(15); // 15 laps for a long race
+        RaceResult aggressiveMonza = monzaSim.simulateRace(corneringCar, monza, aggressive, testWeather);
+        RaceResult conservativeMonza = monzaSim.simulateRace(corneringCar, monza, conservative, testWeather);
+
+        // On a long, high-speed track, a conservative strategy with fewer time-consuming pit stops should be faster.
+        assertTrue(conservativeMonza.getTotalTime() < aggressiveMonza.getTotalTime(),
+                "Conservative strategy should be faster on a long, high-speed track like Monza.");
+    }
 }

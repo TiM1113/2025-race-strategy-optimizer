@@ -1,4 +1,7 @@
 import org.junit.jupiter.api.Test;
+
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -50,6 +53,30 @@ public class RaceResultTest {
     }
 
     @Test
+    public void testComprehensiveConstructor() {
+        // Arrange
+        String carName = "Formula Car";
+        String trackName = "Monaco";
+        double raceTime = 120.75;
+        String strategy = "Conservative Strategy";
+        double avgLapTime = 85.2;
+        int pitStops = 2;
+        String weather = "Wet";
+
+        // Act
+        RaceResult result = new RaceResult(carName, trackName, raceTime, strategy, LocalDateTime.now(), avgLapTime, pitStops, weather);
+
+        // Assert
+        assertEquals(carName, result.getCarName());
+        assertEquals(trackName, result.getTrackName());
+        assertEquals(raceTime, result.getRaceTime(), 0.01);
+        assertEquals(strategy, result.getStrategy());
+        assertEquals(avgLapTime, result.getAverageLapTime(), 0.01);
+        assertEquals(pitStops, result.getPitStopCount());
+        assertEquals(weather, result.getWeatherCondition());
+    }
+
+    @Test
     public void testSettersAndGetters() {
         // Arrange
         RaceResult result = new RaceResult("Initial Car", "Initial Track", 100.0, "Initial Strategy");
@@ -63,6 +90,8 @@ public class RaceResultTest {
         result.setPitStopCount(3);
         result.setWeatherCondition("Dry");
 
+        LocalDateTime ldt = LocalDateTime.now();
+
         // Assert
         assertEquals("Updated Car", result.getCarName());
         assertEquals("Updated Track", result.getTrackName());
@@ -71,6 +100,10 @@ public class RaceResultTest {
         assertEquals(88.5, result.getAverageLapTime(), 0.01);
         assertEquals(3, result.getPitStopCount());
         assertEquals("Dry", result.getWeatherCondition());
+
+        // make the coverage 100%
+        result.setTimestamp(ldt);
+        assertEquals(ldt, result.getTimestamp());
     }
 
     @Test
@@ -124,8 +157,8 @@ public class RaceResultTest {
         // Act & Assert
         assertEquals(result1, result2);
         assertNotEquals(result1, result3);
-        assertNotEquals(result1, null);
-        assertNotEquals(result1, "Not a RaceResult");
+        assertNotEquals(null, result1);
+        assertNotEquals("Not a RaceResult", result1);
     }
 
     @Test
