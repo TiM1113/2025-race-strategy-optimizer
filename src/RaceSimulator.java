@@ -165,25 +165,6 @@ public class RaceSimulator {
         }
     }
 
-    /**
-     * Simulates a race with automatic lap calculation based on track length.
-     */
-    public RaceResult simulateRace(Car car, Track track, RaceStrategy strategy, Weather weather, double targetRaceDistance) {
-        // Calculate laps needed for target distance
-        int calculatedLaps = (int) Math.ceil(targetRaceDistance / track.getLength());
-
-        // Store original totalLaps and restore after simulation
-        int originalTotalLaps = this.totalLaps;
-        this.totalLaps = calculatedLaps;
-
-        RaceResult result = simulateRace(car, track, strategy, weather);
-
-        // Restore original totalLaps
-        this.totalLaps = originalTotalLaps;
-
-        return result;
-    }
-
     // Getter methods
     public boolean isRaceFinished() {
         return isRaceFinished;
@@ -191,36 +172,6 @@ public class RaceSimulator {
 
     public int getCurrentLap() {
         return currentLap;
-    }
-
-    public int getTotalLaps() {
-        return totalLaps;
-    }
-
-    public void setTotalLaps(int totalLaps) {
-        this.totalLaps = totalLaps;
-    }
-
-    /**
-     * Resets the race state for a new simulation.
-     */
-    public void resetRace() {
-        currentLap = 0;
-        isRaceFinished = false;
-    }
-
-    /**
-     * Gets the current race progress as a percentage.
-     */
-    public double getRaceProgress() {
-        if (totalLaps == 0) return 0.0;
-        return (double) currentLap / totalLaps * 100.0;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("RaceSimulator{totalLaps=%d, currentLap=%d, finished=%s, progress=%.1f%%}",
-                totalLaps, currentLap, isRaceFinished, getRaceProgress());
     }
 
     // New helper for lap time with tyre wear/compound

@@ -22,6 +22,10 @@ public class TyreTest {
         assertEquals(30, tyre.getDurability());
         tyre.setOptimalTemperature(80);
         assertEquals(80, tyre.getOptimalTemperature());
+        tyre.setWearRate(0.775);
+        assertEquals(0.775, tyre.getWearRate());
+        tyre.setBaseLapTimeBonus(0.2);
+        assertEquals(0.2, tyre.getBaseLapTimeBonus());
     }
 
     @Test

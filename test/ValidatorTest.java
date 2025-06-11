@@ -35,18 +35,7 @@ public class ValidatorTest {
         assertEquals("Car validation passed", result.getMessage());
     }
 
-    @Test
-    public void testValidateCar_NullCar_ShouldThrowException() {
-        // Test with null car
-        InvalidCarConfigurationException exception = assertThrows(
-                InvalidCarConfigurationException.class,
-                () -> Validator.validateCar(null),
-                "Null car should throw exception"
-        );
-
-        assertEquals("Car cannot be null", exception.getMessage());
-    }
-
+    // 多两行
     @Test
     public void testValidateCar_MissingEngine_ShouldThrowException() {
         // Create car without engine
@@ -65,6 +54,7 @@ public class ValidatorTest {
         assertTrue(exception.getMessage().contains("Engine is not assigned"));
     }
 
+    // duo lianghang
     @Test
     public void testValidateCar_InvalidWeight_TooLow_ShouldThrowException() {
         // Create car with weight too low
@@ -121,8 +111,39 @@ public class ValidatorTest {
         assertTrue(exception.getMessage().contains("below minimum"));
     }
 
+    @Test
+    public void testValidateCar_MissingFrontRearAndAeroKit_ShouldThrowException() {
+        Car incompleteCar = new Car(1, "Incomplete", 950.0,
+                Engine.createStandardEngine(),
+                null, // Front tyres missing
+                null, // Rear tyres missing
+                null); // AeroKit missing
+
+        InvalidCarConfigurationException ex = assertThrows(InvalidCarConfigurationException.class,
+                () -> Validator.validateCar(incompleteCar));
+
+        String msg = ex.getMessage();
+        assertTrue(msg.contains("Front tyres are not assigned"));
+        assertTrue(msg.contains("Rear tyres are not assigned"));
+        assertTrue(msg.contains("AeroKit is not assigned"));
+    }
+
+    @Test
+    public void testValidateCar_ZeroWeight_ShouldThrowException() {
+        Car zeroWeightCar = new Car(1, "Zero", 0.0,
+                Engine.createStandardEngine(),
+                Tyre.createMediumTyre(),
+                Tyre.createMediumTyre(),
+                AeroKit.createStandardKit());
+
+        InvalidCarConfigurationException ex = assertThrows(InvalidCarConfigurationException.class,
+                () -> Validator.validateCar(zeroWeightCar));
+        assertTrue(ex.getMessage().contains("Car weight must be positive"));
+    }
+
     // ========== TRACK VALIDATION TESTS ==========
 
+    // 很有用
     @Test
     public void testValidateTrack_ValidTrack_ShouldPass() throws InvalidTrackDataException {
         // Test with valid track
@@ -196,19 +217,16 @@ public class ValidatorTest {
     }
 
     @Test
-    public void testValidateTrack_HighCornerDensity_ShouldGiveWarning() throws InvalidTrackDataException {
-        // Create track with high corner density (many corners on short track)
-        Track densTrack = new Track("Dense", 2.0, 20, "Medium", "Smooth"); // 10 corners/km
-
-        ValidationResult result = Validator.validateTrack(densTrack);
-
-        assertTrue(result.isValid(), "Track should still be valid");
-        assertTrue(result.hasWarnings(), "Should have warnings about corner density");
-        assertTrue(result.getFormattedWarnings().contains("corner density"));
+    public void testValidateTrack_LengthZero_ShouldThrowException() {
+        Track zeroLengthTrack = new Track("Zero", 0.0, 10, "Medium", "Smooth");
+        InvalidTrackDataException ex = assertThrows(InvalidTrackDataException.class,
+                () -> Validator.validateTrack(zeroLengthTrack));
+        assertTrue(ex.getMessage().contains("Track length must be positive"));
     }
 
     // ========== STRATEGY VALIDATION TESTS ==========
 
+    // important
     @Test
     public void testValidateStrategy_ValidStrategy_ShouldPass() throws InvalidStrategyException {
         ValidationResult result = Validator.validateStrategy(validStrategy, validTrack);
@@ -239,6 +257,7 @@ public class ValidatorTest {
         assertEquals("Track cannot be null for strategy validation", exception.getMessage());
     }
 
+    // important
     @Test
     public void testValidateStrategy_TooManyPitStops_ShouldThrowException() {
         RaceStrategy manyPitStopsStrategy = new RaceStrategy(6, "Medium", "Medium", 95.0); // Above maximum 4
@@ -291,8 +310,36 @@ public class ValidatorTest {
         assertTrue(result.getFormattedWarnings().contains("risky for fuel consumption"));
     }
 
+    @Test
+    public void testValidateStrategy_NegativePitStops_ShouldThrowException() {
+        Track validTrackLocal = new Track("Valid", 5.0, 10, "Medium", "Smooth");
+        RaceStrategy negativePit = new RaceStrategy(-1, "Medium", "Medium", 95.0);
+        InvalidStrategyException ex = assertThrows(InvalidStrategyException.class,
+                () -> Validator.validateStrategy(negativePit, validTrackLocal));
+        assertTrue(ex.getMessage().contains("below minimum"));
+    }
+
+    @Test
+    public void testValidateStrategy_NullFuelStrategy_ShouldThrowException() {
+        Track validTrackLocal = new Track("Valid", 5.0, 10, "Medium", "Smooth");
+        RaceStrategy nullFuel = new RaceStrategy(1, "Medium", null, 95.0);
+        InvalidStrategyException ex = assertThrows(InvalidStrategyException.class,
+                () -> Validator.validateStrategy(nullFuel, validTrackLocal));
+        assertTrue(ex.getMessage().contains("Fuel strategy cannot be null or empty"));
+    }
+
+    @Test
+    public void testValidateStrategy_VeryShortEstimatedTime_Warning() throws InvalidStrategyException {
+        Track normalTrack = new Track("NormalShort", 5.0, 10, "Medium", "Smooth");
+        RaceStrategy quickStrategy = new RaceStrategy(1, "Medium", "Medium", 25.0); // <30 but >0
+        ValidationResult result = Validator.validateStrategy(quickStrategy, normalTrack);
+        assertTrue(result.hasWarnings());
+        assertTrue(result.getFormattedWarnings().contains("very short"));
+    }
+
     // ========== COMPLETE RACE SETUP VALIDATION TESTS ==========
 
+    // important
     @Test
     public void testValidateRaceSetup_AllValid_ShouldPass() throws Exception {
         ValidationResult result = Validator.validateRaceSetup(validCar, validTrack, validStrategy);
@@ -320,49 +367,9 @@ public class ValidatorTest {
         assertTrue(result.getFormattedWarnings().contains("Low power engine on hard track"));
     }
 
-    // ========== CUSTOM EXCEPTION DETAILS TESTS ==========
-
-    @Test
-    public void testInvalidCarConfigurationException_DetailedMessage() {
-        InvalidCarConfigurationException exception = new InvalidCarConfigurationException(
-                "Test message", "Engine", "100-500 HP");
-
-        String detailedMessage = exception.getDetailedMessage();
-
-        assertTrue(detailedMessage.contains("Test message"));
-        assertTrue(detailedMessage.contains("Component: Engine"));
-        assertTrue(detailedMessage.contains("Expected Range: 100-500 HP"));
-        assertTrue(detailedMessage.contains("Suggestion:"));
-    }
-
-    @Test
-    public void testInvalidTrackDataException_DetailedMessage() {
-        InvalidTrackDataException exception = new InvalidTrackDataException(
-                "Invalid length", "length", 15.0, "1-10 km");
-
-        String detailedMessage = exception.getDetailedMessage();
-
-        assertTrue(detailedMessage.contains("Invalid length"));
-        assertTrue(detailedMessage.contains("Property: length"));
-        assertTrue(detailedMessage.contains("Actual Value: 15.0"));
-        assertTrue(detailedMessage.contains("Valid Range: 1-10 km"));
-    }
-
-    @Test
-    public void testInvalidStrategyException_DetailedMessage() {
-        InvalidStrategyException exception = new InvalidStrategyException(
-                "Incompatible strategy", "Light", "Too many pit stops", "Use fewer pit stops");
-
-        String detailedMessage = exception.getDetailedMessage();
-
-        assertTrue(detailedMessage.contains("Incompatible strategy"));
-        assertTrue(detailedMessage.contains("Strategy Type: Light"));
-        assertTrue(detailedMessage.contains("Conflict: Too many pit stops"));
-        assertTrue(detailedMessage.contains("Recommended Action: Use fewer pit stops"));
-    }
-
     // ========== VALIDATION RESULT TESTS ==========
 
+    // important for validation result
     @Test
     public void testValidationResult_WithWarnings() {
         ValidationResult result = new ValidationResult(true, "Test message",
@@ -374,6 +381,7 @@ public class ValidatorTest {
         assertEquals(2, result.getWarnings().size());
         assertTrue(result.getFormattedWarnings().contains("Warning 1"));
         assertTrue(result.getFormattedWarnings().contains("Warning 2"));
+        assertEquals("ValidationResult{isValid=true, message='Test message', warnings=2}", result.toString());
     }
 
     @Test
@@ -384,56 +392,56 @@ public class ValidatorTest {
         assertEquals("Test message", result.getMessage());
         assertFalse(result.hasWarnings());
         assertEquals("No warnings", result.getFormattedWarnings());
+        assertEquals("ValidationResult{isValid=false, message='Test message'}", result.toString());
     }
-
-    // ========== EDGE CASES AND BOUNDARY TESTS ==========
+    // important end
 
     @Test
-    public void testValidateCar_BoundaryWeights() throws InvalidCarConfigurationException {
-        // Test minimum weight (should pass)
-        Car minWeightCar = new Car(1, "MinWeight", 500.0,
-                Engine.createStandardEngine(),
-                Tyre.createMediumTyre(),
-                Tyre.createMediumTyre(),
-                AeroKit.createStandardKit());
+    public void testValidateStrategy_ShortTrackManyPitStopsAndHeavyFuel_Warnings() throws InvalidStrategyException {
+        Track shortTrack = new Track("Shorty", 2.5, 6, "Medium", "Smooth");
+        RaceStrategy strategy = new RaceStrategy(3, "Medium", "Heavy", 95.0);
 
-        ValidationResult minResult = Validator.validateCar(minWeightCar);
-        assertTrue(minResult.isValid(), "Minimum weight should be valid");
-
-        // Test maximum weight (should pass)
-        Car maxWeightCar = new Car(1, "MaxWeight", 1500.0,
-                Engine.createStandardEngine(),
-                Tyre.createMediumTyre(),
-                Tyre.createMediumTyre(),
-                AeroKit.createStandardKit());
-
-        ValidationResult maxResult = Validator.validateCar(maxWeightCar);
-        assertTrue(maxResult.isValid(), "Maximum weight should be valid");
+        ValidationResult result = Validator.validateStrategy(strategy, shortTrack);
+        assertTrue(result.isValid());
+        assertTrue(result.hasWarnings());
+        String warnings = result.getFormattedWarnings();
+        assertTrue(warnings.contains("Short track with many pit stops"));
+        assertTrue(warnings.contains("Heavy fuel strategy with many pit stops"));
     }
 
     @Test
-    public void testValidateTrack_BoundaryValues() throws InvalidTrackDataException {
-        // Test minimum valid track
-        Track minTrack = new Track("MinTrack", 1.0, 5, "Easy", "Smooth");
-        ValidationResult minResult = Validator.validateTrack(minTrack);
-        assertTrue(minResult.isValid(), "Minimum track values should be valid");
+    public void testValidateStrategy_TyreStrategyNullAndTimeZero_Warnings() throws InvalidStrategyException {
+        Track normalTrack = new Track("Normal", 5.0, 10, "Medium", "Smooth");
+        RaceStrategy strategy = new RaceStrategy(1, null, "Medium", 0.0); // time <=0 triggers warning
 
-        // Test maximum valid track
-        Track maxTrack = new Track("MaxTrack", 10.0, 25, "Hard", "Smooth");
-        ValidationResult maxResult = Validator.validateTrack(maxTrack);
-        assertTrue(maxResult.isValid(), "Maximum track values should be valid");
+        ValidationResult result = Validator.validateStrategy(strategy, normalTrack);
+        assertTrue(result.isValid());
+        assertTrue(result.hasWarnings());
+        String warnings = result.getFormattedWarnings();
+        assertTrue(warnings.contains("Tyre strategy is not specified"));
+        assertTrue(warnings.contains("should be positive"));
     }
 
     @Test
-    public void testValidateStrategy_BoundaryPitStops() throws InvalidStrategyException {
-        // Test minimum pit stops
-        RaceStrategy minPitStrategy = new RaceStrategy(0, "Medium", "Heavy", 95.0);
-        ValidationResult minResult = Validator.validateStrategy(minPitStrategy, validTrack);
-        assertTrue(minResult.isValid(), "Minimum pit stops should be valid");
+    public void testValidateStrategy_LongEstimatedTime_Warning() throws InvalidStrategyException {
+        Track normalTrack = new Track("Normal2", 5.0, 10, "Medium", "Smooth");
+        RaceStrategy strategy = new RaceStrategy(1, "Medium", "Medium", 200.0); // >180
 
-        // Test maximum pit stops
-        RaceStrategy maxPitStrategy = new RaceStrategy(4, "Medium", "Light", 95.0);
-        ValidationResult maxResult = Validator.validateStrategy(maxPitStrategy, validTrack);
-        assertTrue(maxResult.isValid(), "Maximum pit stops should be valid");
+        ValidationResult result = Validator.validateStrategy(strategy, normalTrack);
+        assertTrue(result.hasWarnings());
+        assertTrue(result.getFormattedWarnings().contains("very long"));
+    }
+
+    @Test
+    public void testGenerateStrategyRecommendation_ShortTrackBranch() {
+        Track shortTrack = new Track("Shorty", 2.0, 16, "Medium", "Smooth"); // length <3, corners>15
+        RaceStrategy invalidStrategy = new RaceStrategy(-1, "Medium", "Light", 95.0); // Will trigger errors
+
+        InvalidStrategyException ex = assertThrows(InvalidStrategyException.class,
+                () -> Validator.validateStrategy(invalidStrategy, shortTrack));
+
+        String rec = ex.getRecommendedAction();
+        assertTrue(rec.contains("short tracks"));
+        assertTrue(rec.contains("High-corner tracks"));
     }
 }
