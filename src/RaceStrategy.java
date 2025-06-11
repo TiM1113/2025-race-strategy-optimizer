@@ -1,3 +1,5 @@
+import java.util.*;
+
 public class RaceStrategy {
     private int numberOfPitStops;
     private String tyreStrategy;
@@ -68,5 +70,31 @@ public class RaceStrategy {
 
     public static RaceStrategy createConservativeStrategy() {
         return new RaceStrategy(1, "Medium-Hard", "Heavy", 100.0);
+    }
+
+    /**
+     * Parses the tyreStrategy string into a list of compounds for each stint.
+     * E.g., 'Soft-Medium-Hard' -> ["Soft", "Medium", "Hard"]
+     * If not enough compounds are specified, the last one is repeated.
+     */
+    public List<String> getTyreCompoundsForStints(int stints) {
+        if (tyreStrategy == null || tyreStrategy.isEmpty()) {
+            // Default to Medium for all stints
+            return Collections.nCopies(stints, "Medium");
+        }
+        String[] parts = tyreStrategy.split("-");
+        List<String> compounds = new ArrayList<>();
+        for (String part : parts) {
+            compounds.add(part.trim());
+        }
+        // If not enough compounds, repeat the last one
+        while (compounds.size() < stints) {
+            compounds.add(compounds.get(compounds.size() - 1));
+        }
+        // If too many, trim
+        if (compounds.size() > stints) {
+            compounds = compounds.subList(0, stints);
+        }
+        return compounds;
     }
 }
