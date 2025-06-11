@@ -39,7 +39,7 @@ public class TrackTest {
     void testGetEffectiveGripRain() {
         Track track = new Track("TestTrack", 4.0, 12, "Medium", "Smooth");
         Weather wet = Weather.createWetWeather();
-        wet.setRainIntensity(6); // >5 triggers grip reduction
+        wet.setRainIntensity(6);
         track.setCurrentWeather(wet);
         assertEquals(0.8, track.getEffectiveGrip());
     }
@@ -66,16 +66,8 @@ public class TrackTest {
 
         Track monza = Track.createMonzaTrack();
         assertEquals("Monza", monza.getName());
-//        assertEquals(5.8, monza.getLength());
-//        assertEquals(11, monza.getCorners());
-//        assertEquals("Medium", monza.getDifficulty());
-//        assertEquals("Smooth", monza.getSurfaceType());
 
         Track silverstone = Track.createSilverstoneTrack();
         assertEquals("Silverstone", silverstone.getName());
-//        assertEquals(5.9, silverstone.getLength());
-//        assertEquals(18, silverstone.getCorners());
-//        assertEquals("Medium", silverstone.getDifficulty());
-//        assertEquals("Smooth", silverstone.getSurfaceType());
     }
 }

@@ -54,14 +54,8 @@ public class TyreTest {
 
         Tyre medium = Tyre.createMediumTyre();
         assertEquals("Medium", medium.getCompound());
-//        assertEquals(0.85, medium.getGripLevel());
-//        assertEquals(25, medium.getDurability());
-//        assertEquals(90, medium.getOptimalTemperature());
 
         Tyre hard = Tyre.createHardTyre();
         assertEquals("Hard", hard.getCompound());
-//        assertEquals(0.75, hard.getGripLevel());
-//        assertEquals(35, hard.getDurability());
-//        assertEquals(80, hard.getOptimalTemperature());
     }
 }

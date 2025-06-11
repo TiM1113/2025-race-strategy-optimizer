@@ -52,14 +52,8 @@ public class RaceStrategyTest {
 
         RaceStrategy balanced = RaceStrategy.createBalancedStrategy();
         assertEquals(2, balanced.getNumberOfPitStops());
-//        assertEquals("Medium-Hard", balanced.getTyreStrategy());
-//        assertEquals("Medium", balanced.getFuelStrategy());
-//        assertEquals(95.0, balanced.getEstimatedRaceTime());
 
         RaceStrategy conservative = RaceStrategy.createConservativeStrategy();
         assertEquals(1, conservative.getNumberOfPitStops());
-//        assertEquals("Medium-Hard", conservative.getTyreStrategy());
-//        assertEquals("Heavy", conservative.getFuelStrategy());
-//        assertEquals(100.0, conservative.getEstimatedRaceTime());
     }
 }
